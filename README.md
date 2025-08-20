@@ -1,82 +1,212 @@
-# Rnest
+# Food Trucks App
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+## Problem Statement
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+Build a web application that helps users find food trucks in San Francisco using the city's Mobile Food Facility Permit dataset. Users should be able to search by name, address, and find nearby trucks based on location.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/node?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## Overview
 
-## Finish your remote caching setup
+This is a full-stack monorepo application built with **Nx**, **NestJS**, **React**, **Prisma**, and **PostgreSQL** that provides comprehensive access to San Francisco's [Mobile Food Facility Permit dataset](https://data.sfgov.org/Economy-and-Community/Mobile-Food-Facility-Permit/rqzj-sfat/about_data). 
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/hGEFgwwxon)
+The application currently features a fully functional REST API backend that enables users to search for food trucks by name or address, discover the 5 nearest trucks to any location, and retrieve detailed facility information. The proximity search leverages Google's Routes API for accurate distance calculations, ensuring users get precise location-based results.
 
+A key feature is the automated data synchronization tool that keeps the local database current with San Francisco's official dataset, ensuring users always have access to the latest permit and location information. While the React frontend remains as a `TODO`, the robust API foundation is ready to power rich user experiences including interactive maps, real-time search, and location-based discovery features.
 
-## Run tasks
+For additional technical insights and architectural patterns, refer to the [README](https://github.com/henrwx/anest) of my other **Nx** project.
 
-To run the dev server for your app, use:
+## Architecture
 
-```sh
-npx nx serve api
+```
+apps/
+├── api/                   # NestJS backend with REST endpoints
+├── api-e2e/               # End-to-end API tests
+└── web/                   # React frontend (planned)
+libs/
+├── shared/
+│   ├── types/             # Common TypeScript interfaces
+│   ├── constants/         # Shared constants
+│   └── utils/             # Shared utility functions
+├── api/
+│   ├── database/          # Prisma client and configurations
+│   └── external/          # External service integrations, e.g. Google Maps API
+└── web/                   # Frontend libraries (planned)
+│   ├── components/        # Reusable UI components
+│   ├── pages/             # Page-level components
+│   └── services/          # Frontend service layer
+prisma/
+├── schema.prisma          # Database schema definitions
+└── migrations/            # Database migration files
+tools/
+└── data-import/           # SF data synchronization utility
 ```
 
-To create a production bundle:
+## API Endpoints
 
-```sh
-npx nx build api
+| Endpoint | Description | Parameters |
+|----------|-------------|------------|
+| `GET /api/food-trucks/search` | Search by name | `name`, `status`, `limit`, `offset` |
+| `GET /api/food-trucks/search-by-address` | Search by address | `address`, `status`, `limit`, `offset` |
+| `GET /api/food-trucks/nearby` | Find nearby trucks | `lat`, `long`, `radius`, `status`, `limit` |
+
+## Design Decisions
+
+**Monorepo Architecture**: I chose **Nx** to consolidate development in a single repository, enabling code sharing across backend and frontend while maintaining clear separation of concerns. The `libs` structure supports shared database access, external service integrations, and future UI components—a pattern I'm refining from my previous [henrwx/anest](https://github.com/henrwx/anest) project.
+
+**Modular Data Import**: The data synchronization tool lives in `/tools/data-import`, isolated from the main applications. This separation prevents tight coupling and enables future enhancements like scheduled refreshes, cloud-based processing, or multi-source data ingestion without impacting the core API.
+
+**Technology Stack**: The combination of **NestJS**, **Prisma**, and **PostgreSQL** provides a robust foundation with strong typing, excellent ORM capabilities, and proven scalability. These technologies excel at both rapid development and production readiness.
+
+**Proximity Search Strategy**: The current implementation for finding nearby trucks follows a straightforward approach: query all facilities, calculate distances via Google's Routes API, then filter and sort results. While effective for the current dataset size, this approach has clear optimization opportunities:
+
+- **Geographic indexing**: Implement PostGIS for efficient spatial queries
+- **Intelligent pre-filtering**: Use bounding box queries before distance calculations
+- **Caching strategies**: Grid-based geographic caching for frequently accessed areas
+
+## Trade-offs & Future Improvements
+
+### Immediate Enhancements
+
+- **Complete Testing**: Add unit and e2e testing for _**search by address**_ and **_nearby_** features, as well as the Google API integration and data importing tool
+- **Frontend Development**: Complete the React UI with interactive maps and advanced search filters
+- **Performance Optimization**: Replace in-memory distance calculations with PostGIS spatial queries for better scalability
+- **Enhanced Search**: Add filters for cuisine and facility type
+
+### Scaling Considerations
+
+**Database Performance**:
+- PostGIS extension for optimized geospatial queries
+- Read replicas for search-heavy workloads  
+- Connection pooling and query optimization
+- Indexed searches on name, address, and location fields
+
+**Caching & Performance**:
+- Redis-based geographic caching (`nearby:{lat}:{lng}:{radius}`)
+- CDN integration for static assets and cacheable API responses
+- Application-level caching for popular search terms
+- Background job processing for data imports
+
+**Reliability & Security**:
+- Rate limiting to prevent API abuse, especially for location-based searches
+- Comprehensive input validation and sanitization
+- API authentication and usage monitoring
+- Circuit breakers for external service dependencies (Google Maps API)
+
+### Security Implementation
+
+**Current Protections**:
+- Input validation via class-validator and DTOs
+- SQL injection prevention through Prisma ORM
+- Type safety across the entire application stack
+- CORS configuration for secure frontend integration
+
+**Production Requirements**:
+- API rate limiting and authentication mechanisms
+- Request logging and security monitoring
+- HTTPS enforcement with security headers
+- Secure API key management for external services
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- PostgreSQL (v14 or higher)
+- npm
+
+### Quick Setup
+
+1. **Installation**:
+   ```bash
+   git clone <repository-url>
+   cd rnest
+   npm install
+   ```
+
+2. **Database Configuration**:
+   ```bash
+   createdb rnest
+   cp .env.example .env
+
+   # Update .env with your database credentials
+   ```
+
+3. **Environment Variables** (`.env`):
+   ```env
+   # Google Maps API
+   GOOGLE_MAPS_API_KEY="your-api-key"
+
+   # SF Gov API
+   SF_GOV_API_URL="sf-gov-dataset-url"
+   SF_GOV_APP_TOKEN="your-sf-gov-app-token"
+
+   # Server
+   PORT="your-server-port"
+   HOST="your-server-host"
+   ```
+
+4. **Database Setup**:
+   ```bash
+   npx prisma migrate dev
+   npx prisma generate
+
+   # Sync SF dataset
+   npm run data:import # There are also --dry-run and --analyze flags
+   ```
+
+5. **Start Development Server**:
+   ```bash
+   nx serve api
+   # API available at http://localhost:3000/api
+
+   # To also run the client
+   nx run-many --target=serve --projects=api,web
+   ```
+
+### Testing
+
+```bash
+# API unit tests
+nx test api
+
+# API end-to-end tests
+nx e2e api-e2e
 ```
 
-To see all available targets to run for a project, run:
+### API Usage Examples
 
-```sh
-npx nx show project api
+```bash
+# Search by name
+curl -X GET "http://localhost:3000/api/food-trucks/search?name=taco&limit=5"
+
+# Search by address  
+curl -X GET "http://localhost:3000/api/food-trucks/search-by-address?address=mission&limit=5"
+
+# Find nearby trucks
+curl -X GET "http://localhost:3000/api/food-trucks/nearby?lat=37.7749&long=-122.4194&radius=2&limit=5"
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+## Development Commands
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```bash
+# Project analysis
+nx graph                              # View dependency graph
+nx format:write                       # Format entire codebase
 
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
-
-```sh
-npx nx g @nx/node:app demo
+# Production build
+nx build api                          # Build API for deployment
 ```
 
-To generate a new library, use:
+## Technology Stack
 
-```sh
-npx nx g @nx/node:lib mylib
-```
+**Backend Infrastructure**:
+- **Nx**: Monorepo tooling with excellent developer experience and build optimization
+- **NestJS**: Enterprise-grade Node.js framework with dependency injection and TypeScript-first design
+- **Prisma**: Type-safe database ORM with intuitive schema management and migration tools
+- **PostgreSQL**: Production-ready relational database
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+**Development & Quality**:
+- **TypeScript**: End-to-end type safety and enhanced developer productivity
+- **Jest**: Comprehensive testing framework with NX integration
+- **ESLint/Prettier**: Code quality and formatting consistency
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/node?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+This technology stack prioritizes developer productivity, type safety, and production scalability while maintaining simplicity for rapid iteration and testing.
