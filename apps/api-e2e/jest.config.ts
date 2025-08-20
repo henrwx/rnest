@@ -1,12 +1,16 @@
 /* eslint-disable */
 import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
-// Reading the SWC compilation config for the spec files
+/* This flags a problem but there are currently no fixes, and tests are running */
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const swcJestConfig = JSON.parse(
-  readFileSync(`${__dirname}/.spec.swcrc`, 'utf-8')
+  readFileSync(join(__dirname, '.spec.swcrc'), 'utf-8')
 );
 
-// Disable .swcrc look-up by SWC core because we're passing in swcJestConfig ourselves
 swcJestConfig.swcrc = false;
 
 export default {

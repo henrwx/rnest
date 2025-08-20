@@ -45,7 +45,7 @@ export class FoodTrucksService {
 
     if (status) {
       whereClause.status = {
-        contains: status,
+        equals: status,
         mode: 'insensitive',
       };
     }
@@ -57,6 +57,7 @@ export class FoodTrucksService {
         take: pagination.limit,
         skip: pagination.offset,
       }),
+      /* Normally, would just get result and check length */
       this.prisma.foodTruck.count({
         where: whereClause,
       }),
@@ -97,7 +98,7 @@ export class FoodTrucksService {
 
     if (status) {
       whereClause.status = {
-        contains: status,
+        equals: status,
         mode: 'insensitive',
       };
     }
@@ -109,6 +110,7 @@ export class FoodTrucksService {
         take: pagination.limit,
         skip: pagination.offset,
       }),
+      /* Normally, would just get result and check length */
       this.prisma.foodTruck.count({
         where: whereClause,
       }),
@@ -143,8 +145,10 @@ export class FoodTrucksService {
         const distance = await this.googleMapsService.getDrivingDistance(
           latitude,
           longitude,
-          truck.latitude,
-          truck.longitude
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          truck.latitude!,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          truck.longitude!
         );
         return { ...truck, distance };
       })

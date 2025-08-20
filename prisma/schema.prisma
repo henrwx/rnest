@@ -23,8 +23,8 @@ model FoodTruck {
   foodItems           String?   @map("food_items")
   x                   Float?
   y                   Float?
-  latitude            Float
-  longitude           Float
+  latitude            Float?
+  longitude           Float?
   schedule            String?
   approved            DateTime?
   received            String?
