@@ -16,6 +16,12 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": ["development"]
+    "customConditions": ["development"],
+    "baseUrl": ".",
+    "rootDir": ".",
+    "paths": {
+      "@rnest/database": ["libs/api/database/src/index.ts"],
+      "@rnest/external": ["libs/api/external/src/index.ts"]
+    }
   }
 }

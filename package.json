@@ -2,7 +2,15 @@
   "name": "@rnest/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "data:import": "tsx tools/data-import/sf-data-import.ts",
+    "data:import:dry": "tsx tools/data-import/sf-data-import.ts --dry-run",
+    "data:analyze": "tsx tools/data-import/sf-data-import.ts --analyze",
+    "db:migrate": "prisma migrate dev",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio",
+    "db:reset": "prisma migrate reset --force"
+  },
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -83,6 +91,7 @@
     "ts-jest": "^29.4.0",
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
+    "tsx": "^4.20.4",
     "typescript": "~5.8.2",
     "typescript-eslint": "^8.29.0",
     "vite": "^6.0.0",

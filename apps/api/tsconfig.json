@@ -4,6 +4,12 @@
   "include": [],
   "references": [
     {
+      "path": "../../libs/api/external"
+    },
+    {
+      "path": "../../libs/api/database"
+    },
+    {
       "path": "./tsconfig.app.json"
     },
     {

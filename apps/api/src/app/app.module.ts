@@ -1,10 +1,20 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from '@rnest/database';
+import { FoodTrucksModule } from './food-trucks/food-trucks.module';
+import { FoodTrucksController } from './food-trucks/food-trucks.controller';
+import { FoodTrucksService } from './food-trucks/food-trucks.service';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env.local', '.env'],
+    }),
+    DatabaseModule,
+    FoodTrucksModule,
+  ],
+  controllers: [FoodTrucksController],
+  providers: [FoodTrucksService],
 })
 export class AppModule {}

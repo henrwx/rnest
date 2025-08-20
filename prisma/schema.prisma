@@ -21,10 +21,10 @@ model FoodTruck {
   permit              String?
   status              String
   foodItems           String?   @map("food_items")
-  x                   Float? // SF coordinate system
-  y                   Float? // SF coordinate system
-  latitude            Float?
-  longitude           Float?
+  x                   Float?
+  y                   Float?
+  latitude            Float
+  longitude           Float
   schedule            String?
   approved            DateTime?
   received            String?

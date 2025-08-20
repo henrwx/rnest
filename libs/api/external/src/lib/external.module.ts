@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
+import { GoogleMapsService } from './google-maps.service';
 
+@Global()
 @Module({
-  controllers: [],
-  providers: [],
-  exports: [],
+  providers: [GoogleMapsService],
+  exports: [GoogleMapsService],
 })
-export class RnestExternalModule {}
+export class ExternalModule {}
