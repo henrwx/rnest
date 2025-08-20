@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model FoodTruck {
+  id                  String    @id @default(cuid())
+  objectId            String    @unique @map("object_id")
+  applicant           String
+  facilityType        String?   @map("facility_type")
+  cnn                 String?
+  locationDescription String?   @map("location_description")
+  address             String?
+  blockLot            String?   @map("block_lot")
+  block               String?
+  lot                 String?
+  permit              String?
+  status              String
+  foodItems           String?   @map("food_items")
+  x                   Float? // SF coordinate system
+  y                   Float? // SF coordinate system
+  latitude            Float?
+  longitude           Float?
+  schedule            String?
+  approved            DateTime?
+  received            String?
+  priorPermit         String?   @map("prior_permit")
+  expirationDate      DateTime? @map("expiration_date")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([applicant])
+  @@index([status])
+  @@index([address])
+  @@index([latitude, longitude])
+  @@index([facilityType])
+  @@map("food_trucks")
+}

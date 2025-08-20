@@ -8,6 +8,39 @@
     },
     {
       "path": "./apps/api"
+    },
+    {
+      "path": "./apps/web-e2e"
+    },
+    {
+      "path": "./apps/web"
+    },
+    {
+      "path": "./libs/shared/types"
+    },
+    {
+      "path": "./libs/shared/constants"
+    },
+    {
+      "path": "./libs/shared/utils"
+    },
+    {
+      "path": "./libs/api/database"
+    },
+    {
+      "path": "./libs/api/food-trucks"
+    },
+    {
+      "path": "./libs/api/external"
+    },
+    {
+      "path": "./libs/web/components"
+    },
+    {
+      "path": "./libs/web/services"
+    },
+    {
+      "path": "./libs/web/pages"
     }
   ]
 }
